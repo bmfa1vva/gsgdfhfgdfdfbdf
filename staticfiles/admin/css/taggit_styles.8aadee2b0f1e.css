@@ -1,0 +1,44 @@
+/* static/admin/css/taggit_styles.css */
+
+.tag-input-container {
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 4px;
+    background-color: #fff;
+    min-height: 34px; /* Чтобы поле не сжималось */
+}
+
+.tag-input-container .tag {
+    display: inline-block;
+    background-color: #e0e0e0;
+    padding: 3px 8px;
+    margin: 2px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.tag-input-container .tag span {
+    margin-right: 5px;
+}
+
+.tag-input-container .tag .remove-tag {
+    cursor: pointer;
+    color: #888;
+    font-weight: bold;
+}
+
+.tag-input-container input[type="text"] {
+    border: none;
+    outline: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 2px;
+    width: auto; /* Позволяет полю ввода сжиматься/расширяться */
+    display: inline-block;
+    vertical-align: top; /* Для выравнивания с тегами */
+}
+
+/* Скрываем исходное поле textarea, так как мы будем использовать скрытое поле ввода */
+#id_keywords {
+    display: none;
+}

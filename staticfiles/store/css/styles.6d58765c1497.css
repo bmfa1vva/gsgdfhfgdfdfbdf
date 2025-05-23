@@ -1,0 +1,23 @@
+.uk-change {
+    margin-bottom: 0px;
+    margin-top: 15px;
+}
+.uk-padding-small > p {
+    margin-top: 0px;
+    margin-bottom: 5px;
+}
+
+.slideshow > .uk-slidenav-previous,
+.slideshow > .uk-slidenav-next {
+    padding: 5px;
+}
+
+
+.uk-card-title {
+  font-weight: bold;
+  font-size: 1rem; /* или другой размер */
+}
+
+.uk-cover-container.uk-border-rounded + .uk-card-title {
+    margin-top: 5px; /* Или отрицательное значение, например -5px */
+}
