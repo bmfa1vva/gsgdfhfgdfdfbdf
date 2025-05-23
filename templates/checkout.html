@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}RickyG - Оформление заказа{% endblock %}
+{% block content %}
+<style>
+    .telegram-button {
+        border-radius: 12px;
+        font-weight: bold;
+        display: inline-flex; /* Для центрирования текста и иконки */
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        position: relative; /* Для позиционирования таймера относительно кнопки */
+    }
+
+    /* Стиль для неактивной кнопки */
+    .telegram-button.disabled {
+        background-color: #cccccc !important;
+        color: #666666 !important;
+        pointer-events: none !important; /* Отключаем возможность нажатия */
+    }
+
+    .telegram-button.disabled img {
+        filter: grayscale(100%) brightness(50%) !important; /* Обесцвечиваем иконку */
+    }
+
+    /* Стиль для активной кнопки */
+    .telegram-button.active {
+        background-color: #2196F3 !important; /* Пример активного цвета */
+        color: #ffffff !important;
+        cursor: pointer !important; /* Показываем, что кнопка активна */
+    }
+
+    .telegram-button.active img {
+        filter: brightness(0) invert(1) !important; /* Делаем иконку белой */
+    }
+
+    /* Анимация увеличения размера */
+    .telegram-button. увеличенная {
+        transform: scale(1.05);
+    }
+
+    .message-bubble {
+        position: relative;
+        padding: 12px 16px;
+        border-radius: 18px;
+        max-width: 85%;
+        margin: 2px auto; /* Уменьшили вертикальные отступы и центрировали */
+        word-wrap: break-word;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        text-align: center; /* Центрирование текста */
+    }
+
+    .user-message {
+        background-color: #e3f2fd;
+        border: 1px solid #bbdefb;
+        color: #0d47a1;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message-bubble:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    }
+
+    .message-bubble:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .instruction-card {
+        margin-bottom: 0px; /* Немного уменьшили отступ снизу карточки */
+    }
+
+    .telegram-button-container {
+        text-align: center; /* Центрируем кнопку Telegram */
+        margin-top: 0px; /* Немного уменьшили отступ сверху кнопки */
+        position: relative; /* Контейнер тоже делаем relative для позиционирования таймера */
+    }
+
+    .back-button-container {
+        margin-bottom: 10px; /* Уменьшили отступ снизу кнопки "Назад" */
+    }
+
+    .order-title {
+        margin-top: 10px; /* Уменьшили отступ сверху заголовка */
+        margin-bottom: 15px; /* Уменьшили отступ снизу заголовка */
+        text-align: center;
+    }
+
+    .instruction-list {
+        margin-top: 0px; /* Небольшой отступ сверху списка инструкций */
+    }
+
+    .button-timer {
+        position: absolute;
+        bottom: -20px; /* Размещаем таймер под кнопкой */
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.8em;
+        color: #777;
+    }
+</style>
+
+<div class="uk-padding-small">
+    <div class="back-button-container">
+        <a href="{% url 'store:product_list' %}" class="uk-button uk-button-default"><span uk-icon="arrow-left"></span> Назад</a>
+    </div>
+    <h2 class="order-title">Оформление заказа</h2>
+    {% if has_items %}
+        <div class="uk-margin-bottom">
+            <div class="message-bubble user-message" id="message-to-copy">
+                <p style="margin: 0;">{{ message }}</p>
+            </div>
+        </div>
+
+        <div class="uk-card uk-card-body instruction-card">
+            <h3 class="uk-card-title" style="background: none;">Инструкция:</h3>
+            <ol class="uk-list uk-list-decimal instruction-list">
+                <li>Скопируйте текст по кнопке из окошка сверху</li>
+                <li>Нажмите на кнопку, чтобы перейти в чат с менеджером</li>
+                <li>Отправьте менеджеру скопированный текст и подождите ответа</li>
+            </ol>
+        </div>
+        <div class="telegram-button-container">
+            <a href="#" class="uk-button uk-button-primary uk-button-rounded uk-text-bold telegram-button disabled" id="telegram-button">
+                <img src="{% static 'store/img/airplane.png' %}" alt="Telegram" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 5px; filter: brightness(0) invert(1);">
+                Перейти в Telegram
+            </a>
+            <div class="button-timer" id="button-countdown"></div>
+        </div>
+    {% else %}
+        <div class="uk-alert uk-alert-warning">
+            <p>Ваша корзина пуста. Добавьте товары в корзину, чтобы оформить заказ.</p>
+        </div>
+        <div class="uk-text-center">
+            <a href="{% url 'store:product_list' %}" class="uk-button uk-button-primary">Перейти к покупкам</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messageElement = document.getElementById('message-to-copy');
+    const telegramButton = document.getElementById('telegram-button');
+    const buttonCountdownElement = document.getElementById('button-countdown');
+    let notificationActive = false;
+    let timerInterval;
+    let timeLeft = {{ countdown_time }}; // Получаем время ожидания из контекста
+
+    if (messageElement) {
+        messageElement.addEventListener('click', copyMessageToClipboard);
+
+        messageElement.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+        });
+
+        messageElement.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+            this.style.boxShadow = '0 1px 2px rgba(0,0,0,0.1)';
+        });
+    }
+
+    async function copyMessageToClipboard() {
+        if (notificationActive) {
+            return;
+        }
+        this.style.transform = 'scale(0.98)';
+        this.style.backgroundColor = '#d4e7fb';
+
+        try {
+            await navigator.clipboard.writeText(this.innerText.trim());
+            const msg = 'Текст скопирован!';
+            UIkit.notification({
+                message: msg,
+                status: 'success',
+                pos: 'bottom-center',
+                timeout: 2000
+            });
+            notificationActive = true;
+            setTimeout(() => {
+                notificationActive = false;
+            }, 2000);
+            this.style.boxShadow = '0 0 0 2px rgba(25, 118, 210, 0.5)';
+            setTimeout(() => {
+                this.style.boxShadow = '0 1px 2px rgba(0,0,0,0.1)';
+            }, 1000);
+        } catch (err) {
+            console.error('Ошибка при копировании:', err);
+            UIkit.notification({
+                message: 'Не удалось скопировать',
+                status: 'danger',
+                pos: 'bottom-center',
+                timeout: 2000
+            });
+            notificationActive = true;
+            setTimeout(() => {
+                notificationActive = false;
+            }, 2000);
+        } finally {
+            setTimeout(() => {
+                this.style.transform = '';
+                this.style.backgroundColor = '#e3f2fd';
+            }, 200);
+        }
+    }
+
+    function activateButton() {
+        telegramButton.classList.remove('disabled');
+        telegramButton.classList.add('active');
+        telegramButton.classList.add('увеличенная');
+        telegramButton.setAttribute('href', 'https://t.me/HunterGunter66');
+        buttonCountdownElement.innerText = ''; // Убираем таймер после активации
+    }
+
+    function startTimer() {
+        telegramButton.classList.add('disabled');
+        telegramButton.setAttribute('href', '#'); // Временно отключаем переход по клику
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            buttonCountdownElement.innerText = `Осталось: ${timeLeft} сек.`;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                activateButton();
+            }
+        }, 1000);
+    }
+
+    // Запускаем таймер сразу после загрузки DOM
+    startTimer();
+
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+            if (messageElement && window.getSelection().containsNode(messageElement, true)) {
+                copyMessageToClipboard.call(messageElement);
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

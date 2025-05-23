@@ -1,0 +1,61 @@
+{% comment %} store/templates/store/_product_grid_partial.html {% endcomment %}
+<div class="uk-child-width-1-2 uk-child-width-1-2@s uk-child-width-1-2@m uk-grid-small" uk-grid id="product-grid-items">
+    {% for product in products %}
+    <div>
+        <a href="{% url 'store:product_detail' product.slug %}" style="text-decoration: none;">
+            <div class="uk-card uk-card-body uk-padding-small" style="background: transparent; border: none; position: relative;">
+                {% if product.images.first %}
+                    <div class="uk-cover-container uk-border-rounded" style="width: 100%; aspect-ratio: 3 / 4; overflow: hidden; position: relative;">
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" uk-cover class="uk-border-rounded">
+                        {% if product.is_new_arrival %}
+                            <div class="new-arrival-label">Новый завоз</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                <h2 class="uk-card-title uk-margin-remove-bottom" style="text-decoration: none;">{{ product.brand.name }}</h2>
+                <div class="uk-text-meta" style="color: #666; font-size: 0.9em; text-decoration: none;">
+                    {{ product.category.name }}
+                </div>
+                <p class="uk-margin-small-top" style="margin-top: 5px !important;">
+                    {% if product.discount_price %}
+                        <del class="uk-text-muted" style="font-size: 0.8em;">{{ product.price|floatformat:"0" }} ₽</del>
+                        <span class="uk-text-danger" style="font-size: 1em;"><strong>{{ product.discount_price|floatformat:"0" }} ₽</strong></span>
+                    {% else %}
+                        <strong>{{ product.price|floatformat:"0" }} ₽</strong>
+                    {% endif %}
+                </p>
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <div class="uk-width-1-1"><p>Товары, соответствующие вашему запросу, отсутствуют.</p></div>
+    {% endfor %}
+</div>
+
+{% if products.has_other_pages %}
+<ul class="uk-pagination uk-flex-center uk-margin-medium-top" id="product-pagination">
+    {% if products.has_previous %}
+        <li><a href="?page={{ products.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="ajax-page-link" data-page="{{ products.previous_page_number }}"><span uk-pagination-previous></span></a></li>
+    {% else %}
+        <li class="uk-disabled"><span><span uk-pagination-previous></span></span></li>
+    {% endif %}
+
+    {% for i in paginator.page_range %}
+        {% if products.number == i %}
+            <li class="uk-active"><span>{{ i }}</span></li>
+        {% elif i > products.number|add:'-3' and i < products.number|add:'3' %}
+            <li><a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="ajax-page-link" data-page="{{ i }}">{{ i }}</a></li>
+        {% elif i == products.number|add:'-3' or i == products.number|add:'3' %}
+            {% if i > 0 and i <= paginator.num_pages %} {# Добавим проверку, чтобы не выводить "..." если нет страниц #}
+                 <li class="uk-disabled"><span>...</span></li>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% if products.has_next %}
+        <li><a href="?page={{ products.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="ajax-page-link" data-page="{{ products.next_page_number }}"><span uk-pagination-next></span></a></li>
+    {% else %}
+        <li class="uk-disabled"><span><span uk-pagination-next></span></span></li>
+    {% endif %}
+</ul>
+{% endif %}

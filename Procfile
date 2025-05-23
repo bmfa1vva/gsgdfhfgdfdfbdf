@@ -1,0 +1,1 @@
+web: gunicorn ui_magaz.wsgi --log-file -

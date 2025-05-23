@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% block title %}RickyG - Главная страница{% endblock %}
+{% block content %}
+
+<style>
+    .category-item {
+        margin-bottom: 8px;
+    }
+    .category-link {
+        display: inline-block;
+        padding: 4px 12px;
+        font-weight: bold;
+        color: #333;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+        transition: background 0.3s, color 0.3s;
+        text-decoration: none;
+    }
+   .category-item.uk-active .category-link {
+    position: relative;
+    background: linear-gradient(
+        120deg,
+        #ffef42 0%,
+        #ffe000 25%,
+        #ffef42 50%,
+        #ffe000 75%,
+        #ffef42 100%
+    );
+    background-size: 400% 400%;
+    color: #383838;
+    animation: gradientAnimation 5s ease infinite;
+    transition: color 0.3s ease;
+}
+
+@keyframes gradientAnimation {
+    0% {
+        background-position: 100% 50%;
+    }
+    50% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
+    .new-arrival-label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный чёрный фон */
+        color: #fff;
+        padding: 2px 3px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 0;
+        z-index: 10;
+        overflow: hidden;
+    }
+
+    .test-label {
+        position: absolute;
+        top: 10;
+        left: 10;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        padding: 2px 3px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 0;
+        z-index: 10;
+        overflow: hidden;
+    }
+
+
+        /* АНИМАЦИЯ УВЕДОМЛЕНИЯ КОРЗИНА *\
+.notification {
+    position: fixed;
+    bottom: 20px; /* Можно вернуть 20px или оставить 25px, как было */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: none; /* Будет показано через JS */
+    color: #104913;
+    padding: 16px 22px; /* Вертикальный отступ чуть меньше, горизонтальный тоже */
+    border-radius: 14px; /* Чуть меньше радиус для компактности */
+    box-shadow:
+        0 8px 25px rgba(38, 100, 40, 0.12), /* Еще немного смягчим тень */
+        0 4px 12px rgba(38, 100, 40, 0.08),
+        inset 0 1px 0px rgba(255, 255, 255, 0.35);
+    font-size: 16px; /* Немного уменьшен для мобильных */
+    font-weight: 600; /* Можно попробовать 600 (полужирный) для большей легкости */
+    text-align: left; /* Текст и иконка будут слева, обычно лучше для уведомлений с возможным усечением */
+    animation:
+        popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+        slideOut 0.8s ease-in-out 3.7s forwards;
+
+    /* --- Ключевые изменения для однострочности и мобильных --- */
+    white-space: nowrap;      /* Текст в одну строку */
+    overflow: hidden;         /* Скрываем текст, который не помещается */
+    text-overflow: ellipsis;  /* Добавляем "..." в конце обрезанного текста */
+    width: auto;              /* Ширина по содержимому */
+    max-width: 90vw;          /* Максимальная ширина - 90% от ширины видимой области экрана */
+    box-sizing: border-box;   /* padding и border включаются в max-width */
+    /* ---------------------------------------------------------- */
+
+    border: 1px solid rgba(135, 196, 137, 0.5); /* Граница чуть тоньше */
+    line-height: 1.3; /* Для лучшей читаемости, если вдруг текст перенесется (хотя nowrap этого не допустит) */
+    background: linear-gradient(
+        140deg,
+        #E0F2E1 0%,
+        #B9DAB8 50%,
+        #9BCF9D 100%
+    );
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
+    /* backdrop-filter: blur(3px); */
+}
+
+/* Скорректируем отступ для иконки, если текст теперь слева */
+.notification::before {
+    content: '✔';
+    margin-right: 10px; /* Уменьшим отступ, если текст слева */
+    vertical-align: middle; /* или -2px, или другое значение для точного выравнивания с текстом */
+    font-size: 20px; /* Можно чуть уменьшить иконку */
+    animation:
+        iconPopIn 0.5s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) both,
+        pulseIcon 2.2s ease-in-out 1s infinite;
+    text-shadow: 0 1px 3px rgba(38, 100, 40, 0.25);
+    display: inline-block;
+}
+
+/* Остальные стили: .notification::after, .notification:hover и @keyframes остаются как в предыдущем ответе */
+/* @keyframes popIn, slideOut, iconPopIn, pulseIcon, subtleShine */
+        /* АНИМАЦИЯ УВЕДОМЛЕНИЯ КОРЗИНА *\
+
+
+
+    .uk-card.uk-card-body {
+        padding-top: 8px;
+    }
+
+    .uk-card.uk-card-body .uk-card-title {
+        margin-top: -50px;
+    }
+
+
+/* Стили для кнопки фильтра */
+    .uk-button-primary {
+    position: relative;
+    background: linear-gradient(
+        120deg,
+        #ffef42 0%,
+        #ffe000 25%,
+        #ffef42 50%,
+        #ffe000 75%,
+        #ffef42 100%
+    ) !important;
+    background-size: 400% 400% !important;
+    color: #383838 !important;
+    animation: gradientAnimation 5s ease infinite;
+    border: none !important;
+    border-radius: 3px !important; /* Скругление 3px */
+    transition: all 0.3s ease !important;
+}
+</style>
+
+{% if banner %}
+    <div style="margin: 10px 0; text-align: center;">
+        {% if banner.url %}
+        <a href="{{ banner.url }}" style="display: inline-block;">
+            <img src="{{ banner.image.url }}" alt="{{ banner.title }}" style="width: 100%; max-width: 100%; border-radius: 0px;">
+        </a>
+        {% else %}
+        <img src="{{ banner.image.url }}" alt="{{ banner.title }}" style="width: 100%; max-width: 100%; border-radius: 0px; display: inline-block;">
+        {% endif %}
+    </div>
+{% endif %}
+
+<div class="uk-padding-small">
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
+        <h2 class="uk-text-left uk-margin-remove">{% if category %}{{ category.name }}{% else %}Каталог товаров{% endif %}</h2>
+        <button class="uk-button uk-button-default uk-flex uk-flex-middle" uk-toggle="target: #filter-modal" style="padding: 4px 12px; font-size: 14px;">
+            <span uk-icon="thumbnails" class="uk-margin-small-right"></span> Фильтр
+        </button>
+    </div>
+
+    <div id="filter-modal" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body">
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <h2 class="uk-modal-title" style="background-color: white;">Фильтры</h2>
+            <form id="filter-form" method="get" action="{% url 'store:product_list' %}" class="uk-form-stacked">
+                <div class="uk-margin">
+                    <label class="uk-form-label">Категория</label>
+                    <select name="category" class="uk-select" id="category-select">
+                        <option value="">Все</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.slug }}" {% if category and category.slug == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label">Бренд</label>
+                    <select name="brand" class="uk-select" id="brand-select">
+                        <option value="">Все</option>
+                        {% for brand in brands %}
+                            <option value="{{ brand.name }}" {% if selected_brand == brand.name %}selected{% endif %}>{{ brand.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label">Цвет</label>
+                    <select name="color" class="uk-select" id="color-select">
+                        <option value="">Все</option>
+                        {% for color in colors %}
+                            <option value="{{ color.name }}" {% if selected_color == color.name %}selected{% endif %}>{{ color.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label">Состояние</label>
+                    <select name="condition" class="uk-select" id="condition-select">
+                        <option value="">Все</option>
+                        {% for cond in conditions %}
+                            <option value="{{ cond.name }}" {% if selected_condition == cond.name %}selected{% endif %}>{{ cond.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label">Размер</label>
+                    <select name="size" class="uk-select" id="size-select">
+                        <option value="">Все</option>
+                        {% for size in sizes %}
+                            <option value="{{ size.name }}" {% if selected_size == size.name %}selected{% endif %}>{{ size.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label">Пол</label>
+                    <select name="gender" class="uk-select" id="gender-select">
+                        <option value="">Все</option>
+                        <option value="M" {% if selected_gender == 'M' %}selected{% endif %}>Мужской</option>
+                        <option value="F" {% if selected_gender == 'F' %}selected{% endif %}>Женский</option>
+                        <option value="U" {% if selected_gender == 'U' %}selected{% endif %}>Унисекс</option>
+                    </select>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label">Цена от</label>
+                    <input type="number" name="price_min" class="uk-input" value="{{ price_min|default:'' }}" min="0" step="0.01" id="price-min-input">
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label">Цена до</label>
+                    <input type="number" name="price_max" class="uk-input" value="{{ price_max|default:'' }}" min="0" step="0.01" id="price-max-input">
+                </div>
+                <div class="uk-margin">
+                    <button type="submit" class="uk-button uk-button-primary uk-border-pill">Применить</button>
+                    <a href="{% url 'store:product_list' %}" class="uk-button uk-button-default">Сбросить</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="uk-margin">
+        <ul class="uk-subnav uk-subnav-pill uk-flex uk-flex-wrap">
+            <li class="category-item {% if not category and not selected_brand and not selected_color and not selected_condition and not selected_size and not selected_gender and not price_min and not price_max %}uk-active{% endif %}">
+                <a href="{% url 'store:product_list' %}" class="category-link">Все</a>
+            </li>
+            {% for cat in categories %}
+                <li class="category-item {% if category and category.slug == cat.slug %}uk-active{% endif %}">
+                    <a href="{% url 'store:product_list' %}?category={{ cat.slug }}" class="category-link">{{ cat.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="uk-child-width-1-2 uk-child-width-1-2@s uk-child-width-1-2@m uk-grid-small" uk-grid>
+    {% for product in products %}
+        <div>
+            <a href="{% url 'store:product_detail' product.slug %}" style="text-decoration: none;">
+                <div class="uk-card uk-card-body uk-padding-small" style="background: transparent; border: none; position: relative;">
+                    {% if product.images.first %}
+                        <div class="uk-cover-container uk-border-rounded" style="width: 100%; aspect-ratio: 3 / 4; overflow: hidden; position: relative;">
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" uk-cover class="uk-border-rounded">
+                            {% if product.is_new_arrival %}
+                                <div class="new-arrival-label">Новый завоз</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <h2 class="uk-card-title uk-margin-remove-bottom" style="text-decoration: none;">{{ product.brand.name }}</h2>
+                    <div class="uk-text-meta" style="color: #666; font-size: 0.9em; text-decoration: none;">
+                        {{ product.category.name }}
+                    </div>
+                    <p class="uk-margin-small-top" style="margin-top: 0px !important;">
+                        {% if product.discount_price %}
+                            <del class="uk-text-muted" style="font-size: 0.8em;">{{ product.price|floatformat:"0" }} ₽</del>
+                            <span class="uk-text-danger" style="font-size: 1em;"><strong>{{ product.discount_price|floatformat:"0" }} ₽</strong></span>
+                        {% else %}
+                            <strong>{{ product.price|floatformat:"0" }} ₽</strong>
+                        {% endif %}
+                    </p>
+                </div>
+            </a>
+        </div>
+    {% empty %}
+        <p>Товары отсутствуют.</p>
+    {% endfor %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Функция для обновления выпадающего списка
+        function updateSelectOptions(selectElementId, optionsData, selectedValue, valueKey, nameKey) {
+            const $select = $('#' + selectElementId);
+            $select.empty(); // Очищаем текущие опции
+            $select.append('<option value="">Все</option>'); // Добавляем опцию "Все"
+
+            optionsData.forEach(function(option) {
+                const value = option[valueKey];
+                const name = option[nameKey];
+                const isSelected = (value === selectedValue) ? 'selected' : '';
+                $select.append(`<option value="${value}" ${isSelected}>${name}</option>`);
+            });
+        }
+
+        // Функция для отправки AJAX-запроса
+        function fetchFilteredOptions() {
+            const currentFilters = {
+                category: $('#category-select').val(),
+                brand: $('#brand-select').val(),
+                color: $('#color-select').val(),
+                condition: $('#condition-select').val(),
+                size: $('#size-select').val(),
+                gender: $('#gender-select').val(),
+                price_min: $('#price-min-input').val(),
+                price_max: $('#price-max-input').val()
+            };
+
+            $.ajax({
+                url: '{% url "store:get_filtered_options" %}',
+                data: currentFilters,
+                dataType: 'json',
+                success: function(data) {
+                    // Обновляем каждый выпадающий список на основе полученных данных
+                    updateSelectOptions('category-select', data.categories, currentFilters.category, 'slug', 'name');
+                    updateSelectOptions('brand-select', data.brands, currentFilters.brand, 'name', 'name');
+                    updateSelectOptions('color-select', data.colors, currentFilters.color, 'name', 'name');
+                    updateSelectOptions('condition-select', data.conditions, currentFilters.condition, 'name', 'name');
+                    updateSelectOptions('size-select', data.sizes, currentFilters.size, 'name', 'name');
+
+                    // Для пола можно не обновлять динамически, так как его значения всегда фиксированы
+                    // Но если бы были другие типы полей, логика была бы аналогичной
+                    // updateSelectOptions('gender-select', data.genders, currentFilters.gender, 'value', 'name');
+                },
+                error: function(xhr, status, error) {
+                    console.error("Ошибка при получении отфильтрованных опций:", error);
+                }
+            });
+        }
+
+        // Назначаем обработчики событий для всех выпадающих списков
+        // При изменении любого фильтра, запрашиваем обновленные опции
+        $('#category-select, #brand-select, #color-select, #condition-select, #size-select, #gender-select, #price-min-input, #price-max-input').on('change', function() {
+            fetchFilteredOptions();
+        });
+
+        // Вызываем функцию при загрузке страницы, чтобы инициализировать фильтры
+        // Это полезно, если страница загружается с уже выбранными параметрами фильтрации
+        fetchFilteredOptions();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} RickyG - {{ product.name }}{% endblock %}
+{% block content %}
+<div class="uk-padding-small">
+    <div class="uk-flex uk-flex-between uk-flex-middle custom-margin">
+        <a href="{% url 'store:product_list' %}" class="uk-button uk-button-default"><span uk-icon="arrow-left"></span> Назад</a>
+    </div>
+    <h2 class="uk-margin-remove-top">{{ product.name }}</h2>
+
+    <div class="uk-margin">
+        <div class="detail-gallery">
+            {% for image in product.images.all %}
+                <div class="slide{% if forloop.first %} active{% endif %}">
+                    <img src="{{ image.image.url }}" alt="{{ product.name }}" class="uk-border-rounded detail-image">
+                </div>
+            {% empty %}
+                <div class="slide active">
+                    <img src="{% static 'store/images/placeholder.jpg' %}" alt="Нет изображения" class="uk-border-rounded detail-image">
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="thumbnails">
+            {% for image in product.images.all %}
+                <img src="{{ image.image.url }}" alt="{{ product.name }}" class="thumbnail-image {% if forloop.first %}selected{% endif %}">
+            {% empty %}
+                <img src="{% static 'store/images/placeholder.jpg' %}" alt="Нет изображения" class="thumbnail-image selected">
+            {% endfor %}
+        </div>
+    </div>
+
+    <p><strong>Категория:</strong> {{ product.category.name }}</p>
+    <p><strong>Бренд:</strong> {{ product.brand.name }}</p>
+    <p><strong>{% if product.colors.count == 1 %}Цвет: {% else %}Цвета: {% endif %}</strong>{% for color in product.colors.all %}{{ color.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    <p><strong>{% if product.sizes.count == 1 %}Размер: {% else %}Размеры: {% endif %}</strong>{% for size in product.sizes.all %}{{ size.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    <p><strong>Пол:</strong> {{ product.get_gender_display }}</p>
+    <p><strong>Состояние:</strong> {{ product.condition.name }}</p>
+    <p>
+    <strong>Цена:</strong>
+        {% if product.discount_price %}
+            <span class="uk-text-danger"><strong>{{ product.discount_price|floatformat:"0" }} ₽</strong></span>
+            <del>{{ product.price|floatformat:"0" }} ₽</del>
+        {% else %}
+            {{ product.price|floatformat:"0" }} ₽
+        {% endif %}
+    </p>
+
+    {% if product.description %}
+        <p><strong>Описание:</strong> {{ product.description }}</p>
+    {% endif %}
+    <form method="post" action="{% url 'store:product_detail' product.slug %}">
+        {% csrf_token %}
+        <button type="submit" class="uk-button uk-button-secondary uk-margin-small-top">Добавить в корзину</button>
+    </form>
+
+    <div id="fullscreen-modal" class="uk-modal-full" uk-modal>
+        <div class="uk-modal-dialog uk-flex uk-flex-center uk-flex-middle" uk-height-viewport>
+            <button class="uk-modal-close-full uk-close-large" type="button" uk-close></button>
+            <img id="fullscreen-image" src="" alt="" style="max-width: 90%; max-height: 90%;">
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-margin {
+        margin-bottom: 10px; /* Здесь вы можете указать любое значение в px, rem, em и т.д. */
+    }
+
+    .detail-gallery {
+        max-width: 280px;
+        margin: 0 auto 16px;
+        position: relative;
+    }
+
+    .detail-gallery .slide {
+        display: none;
+    }
+
+    .detail-gallery .slide.active {
+        display: block;
+    }
+
+    .detail-gallery .slide img.detail-image {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+    }
+
+    .thumbnails {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 8px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .thumbnails img.thumbnail-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        cursor: pointer;
+        opacity: 0.6;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        transition: border-color 0.3s, opacity 0.3s;
+    }
+
+    .thumbnails img.selected {
+        opacity: 1;
+        border-color: #007bff;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const slides = document.querySelectorAll(".detail-gallery .slide");
+        const thumbs = document.querySelectorAll(".thumbnails img.thumbnail-image");
+        const detailImages = document.querySelectorAll(".detail-gallery .slide img.detail-image");
+        const fullscreenModal = document.getElementById("fullscreen-modal");
+        const fullscreenImage = document.getElementById("fullscreen-image");
+        const modal = UIkit.modal(fullscreenModal);
+
+        if (slides.length && thumbs.length && detailImages.length && fullscreenModal && fullscreenImage && modal) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle("active", i === 0);
+            });
+            thumbs.forEach((thumb, i) => {
+                thumb.classList.toggle("selected", i === 0);
+                thumb.addEventListener("click", () => {
+                    document.querySelector(".detail-gallery .slide.active").classList.remove("active");
+                    document.querySelector(".thumbnails img.thumbnail-image.selected").classList.remove("selected");
+                    slides[i].classList.add("active");
+                    thumb.classList.add("selected");
+                });
+            });
+
+            detailImages.forEach(img => {
+                img.addEventListener("click", () => {
+                    fullscreenImage.src = img.src;
+                    modal.show();
+                });
+            });
+        }
+    });
+</script>
+
+{% endblock %}

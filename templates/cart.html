@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}RickyG - Корзина{% endblock %}
+{% block content %}
+<div class="uk-padding-small">
+    <div class="uk-margin-bottom">
+        <a href="{% url 'store:product_list' %}" class="uk-button uk-button-default"><span uk-icon="arrow-left"></span> Назад</a>
+        <h2 class="uk-text-center" style="margin-top: 8px;">Корзина</h2>
+    </div>
+    {% if cart_items %}
+        <ul class="uk-list uk-list-divider">
+            {% for item in cart_items %}
+                <li class="uk-flex uk-flex-middle">
+                    <a href="{% url 'store:product_detail' item.product.slug %}" class="uk-margin-small-right" style="width: 60px; height: 80px; overflow: hidden; display: block;">
+                        {% if item.product.images.all %}
+                            <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.brand.name }}" class="uk-cover uk-border-rounded" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'store/images/placeholder.jpg' %}" alt="Нет изображения" class="uk-cover uk-border-rounded" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% endif %}
+                    </a>
+                    <div class="uk-width-expand">
+                        <a href="{% url 'store:product_detail' item.product.slug %}" style="text-decoration: none; color: inherit;">
+                            <div class="uk-flex uk-flex-between">
+                                <span>{{ item.product.brand.name }} {{ item.product.category.name }}</span>
+                            </div>
+                            <div class="uk-flex uk-flex-between uk-text-small">
+                                <span>{{ item.quantity }} x {{ item.price|floatformat:"0" }} ₽ = {{ item.total|floatformat:"0" }} ₽</span>
+                            </div>
+                        </a>
+                    </div>
+                    <form method="post" action="{% url 'store:cart' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        <input type="hidden" name="remove_item" value="1">
+                        <button type="submit" class="uk-icon-button uk-button-danger uk-margin-small-left" uk-icon="close"></button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+        <p class="uk-text-bold uk-margin">Итого: {{ total|floatformat:"0" }} ₽</p>
+        <div class="uk-text-center uk-margin-top">
+            <a href="{% url 'store:checkout' %}" class="uk-button uk-button-primary uk-button-rounded uk-text-bold" style="border-radius: 12px;">
+                <img src="{% static 'store/img/airplane.png' %}" alt="Telegram" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 5px; filter: brightness(0) invert(1);">
+                Связаться с менеджером
+            </a>
+        </div>
+    {% else %}
+        <p>Корзина пуста.</p>
+    {% endif %}
+</div>
+
+<style>
+    .uk-icon-button {
+        position: relative;
+        z-index: 1;
+    }
+</style>
+{% endblock %}
